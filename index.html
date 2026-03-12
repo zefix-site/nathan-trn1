@@ -69,6 +69,8 @@
         }
         
         .btn-outline-cod:hover { background: var(--cod-orange); color: black; }
+        .btn-outline-cod:disabled { border-color: #4a5568; color: #a0aec0; cursor: not-allowed; opacity: 0.7; }
+        .btn-outline-cod:disabled:hover { background: transparent; color: #a0aec0; }
 
         .card-gaming {
             background: rgba(26, 29, 35, 0.8);
@@ -167,6 +169,54 @@
             from { transform: translateX(100%); opacity: 0; }
             to { transform: translateX(0); opacity: 1; }
         }
+
+        /* --- MOBILE FIXES --- */
+        @media (max-width: 768px) {
+            .admin-layout { flex-direction: column; }
+            .admin-sidebar { 
+                width: 100% !important; 
+                border-right: none !important; 
+                border-bottom: 1px solid #2d3748;
+                padding: 1rem !important;
+                position: relative !important;
+            }
+            .admin-sidebar nav { 
+                flex-direction: row !important; 
+                overflow-x: auto; 
+                padding-bottom: 5px;
+            }
+            .sidebar-link { 
+                white-space: nowrap; 
+                padding: 8px 15px !important;
+                font-size: 12px;
+            }
+            .admin-main { padding: 1.5rem !important; }
+            
+            /* Responsive Admin Tables as Cards */
+            .responsive-table thead { display: none; }
+            .responsive-table tbody tr { 
+                display: flex; 
+                flex-direction: column; 
+                margin-bottom: 1rem; 
+                background: rgba(255,255,255,0.05);
+                border-radius: 8px;
+                padding: 1rem;
+            }
+            .responsive-table td { 
+                display: flex; 
+                justify-content: space-between; 
+                padding: 0.5rem 0 !important;
+                border: none !important;
+                text-align: left !important;
+            }
+            .responsive-table td::before {
+                content: attr(data-label);
+                font-weight: bold;
+                color: #718096;
+                text-transform: uppercase;
+                font-size: 10px;
+            }
+        }
     </style>
 </head>
 <body class="bg-codm">
@@ -174,7 +224,6 @@
 
     <div id="toastContainer"></div>
 
-    <!-- MODAL AUTH -->
     <div id="authModal" class="modal-overlay">
         <div class="bg-zinc-900 p-8 w-full max-w-md border border-zinc-800 rounded-lg shadow-2xl">
             <div class="flex justify-between items-center mb-6">
@@ -195,7 +244,6 @@
         </div>
     </div>
 
-    <!-- MODAL LISTE INSCRITS (ADMIN) -->
     <div id="participantsModal" class="modal-overlay">
         <div class="bg-zinc-900 p-8 w-full max-w-md border border-zinc-800 rounded-lg shadow-2xl">
             <div class="flex justify-between items-center mb-6">
@@ -206,35 +254,56 @@
         </div>
     </div>
 
-    <!-- VUE CLIENT -->
+    <div id="betModal" class="modal-overlay">
+        <div class="bg-zinc-900 p-8 w-full max-w-md border border-zinc-800 rounded-lg shadow-2xl">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="font-cod text-xl text-orange-500 uppercase italic">Placer un pari</h2>
+                <button onclick="toggleModal('betModal', false)" class="text-gray-500 hover:text-white"><i data-lucide="x"></i></button>
+            </div>
+            <form id="betForm" class="space-y-4">
+                <input type="hidden" id="betTourneyId">
+                <div>
+                    <label class="block text-[10px] uppercase text-gray-500 mb-1">Soutien logistique (Vainqueur)</label>
+                    <select id="betPredictedWinner" class="input-cod" required>
+                        </select>
+                </div>
+                <div class="bg-orange-500/10 border border-orange-500/30 p-3 rounded">
+                    <p class="text-xs text-orange-500 italic text-center uppercase font-bold">Mise obligatoire : 1,00 €</p>
+                    <p class="text-[9px] text-zinc-500 text-center mt-1">La somme sera déduite de votre solde ou demandée à la validation.</p>
+                </div>
+                <button type="submit" class="btn-cod w-full justify-center mt-4 italic">Confirmer le Pari</button>
+            </form>
+        </div>
+    </div>
+
     <div id="clientView">
         <nav class="fixed w-full z-50 bg-black/90 border-b border-orange-500/20 backdrop-blur-xl">
-            <div class="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
-                <div class="flex items-center gap-3">
-                    <i data-lucide="target" class="text-orange-500 w-8 h-8"></i>
-                    <span class="font-cod text-2xl tracking-tighter uppercase">NATHAN-<span class="text-orange-500">TRN</span></span>
+            <div class="max-w-7xl mx-auto px-4 md:px-6 py-4 flex justify-between items-center">
+                <div class="flex items-center gap-2 md:gap-3">
+                    <i data-lucide="target" class="text-orange-500 w-6 h-6 md:w-8 md:h-8"></i>
+                    <span class="font-cod text-xl md:text-2xl tracking-tighter uppercase">NATHAN-<span class="text-orange-500">TRN</span></span>
                 </div>
-                <div class="flex items-center gap-4">
-                    <button onclick="scrollToSection('leaderboard')" class="btn-outline-cod">Classement</button>
+                <div class="flex items-center gap-2 md:gap-4">
+                    <button onclick="scrollToSection('leaderboard')" class="hidden md:inline-flex btn-outline-cod">Classement</button>
                     <div id="userProfile">
-                        <button onclick="toggleModal('authModal', true)" class="btn-cod !py-2 !text-[10px]">Connexion</button>
+                        <button onclick="toggleModal('authModal', true)" class="btn-cod !py-2 !px-3 !text-[9px] md:!text-[10px]">Connexion</button>
                     </div>
                 </div>
             </div>
         </nav>
 
         <header class="h-[60vh] flex items-center justify-center text-center px-6 pt-20 relative">
-            <div class="relative z-10">
-                <h1 class="font-cod text-5xl md:text-7xl mb-4 uppercase italic">Operations <span class="text-orange-500">Center</span></h1>
-                <p class="text-white text-lg mb-8 italic uppercase font-bold">Base de données Nathan-TRN.</p>
-                <div class="flex gap-4 justify-center">
-                    <button onclick="scrollToSection('tournaments')" class="btn-cod">Missions</button>
-                    <button id="adminQuickLink" onclick="showAdminView()" class="hidden border border-orange-500 text-orange-500 px-6 py-2 text-[10px] font-bold uppercase hover:bg-orange-500 hover:text-black transition-all">HQ ADMIN</button>
+            <div class="relative z-10 w-full">
+                <h1 class="font-cod text-4xl md:text-7xl mb-4 uppercase italic">Operations <span class="text-orange-500">Center</span></h1>
+                <p class="text-white text-sm md:text-lg mb-8 italic uppercase font-bold px-4">Base de données Nathan-TRN.</p>
+                <div class="flex flex-col md:flex-row gap-4 justify-center items-center">
+                    <button onclick="scrollToSection('tournaments')" class="btn-cod w-full md:w-auto justify-center">Missions</button>
+                    <button id="adminQuickLink" onclick="showAdminView()" class="hidden border border-orange-500 text-orange-500 px-6 py-2 text-[10px] font-bold uppercase hover:bg-orange-500 hover:text-black transition-all w-full md:w-auto">HQ ADMIN</button>
                 </div>
             </div>
         </header>
 
-        <main class="max-w-7xl mx-auto px-6 py-12">
+        <main class="max-w-7xl mx-auto px-4 md:px-6 py-12">
             <section id="featuredVideo" class="mb-20">
                 <h2 class="font-cod text-2xl mb-8 uppercase border-l-4 border-orange-500 pl-4 italic">Briefing Vidéo</h2>
                 <div id="clientVideoDisplay" class="max-w-4xl mx-auto">
@@ -244,52 +313,53 @@
 
             <section id="leaderboard" class="mb-20">
                 <h2 class="font-cod text-2xl mb-8 uppercase border-l-4 border-orange-500 pl-4 italic">Top Operatives</h2>
-                <div class="card-gaming rounded-xl overflow-x-auto">
-                    <table class="w-full text-left min-w-[600px]">
-                        <thead class="bg-black/50 text-[10px] uppercase text-orange-500 font-bold">
-                            <tr><th class="p-4">Rang</th><th class="p-4">Soldat</th><th class="p-4 text-center">Wins</th><th class="p-4 text-center">Kills</th><th class="p-4 text-right">Points</th></tr>
-                        </thead>
-                        <tbody id="leaderboardBody" class="divide-y divide-white/5"></tbody>
-                    </table>
+                <div class="card-gaming rounded-xl overflow-hidden">
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left min-w-[500px]">
+                            <thead class="bg-black/50 text-[10px] uppercase text-orange-500 font-bold">
+                                <tr><th class="p-4">Rang</th><th class="p-4">Soldat</th><th class="p-4 text-center">Wins</th><th class="p-4 text-center">Kills</th><th class="p-4 text-right">Points</th></tr>
+                            </thead>
+                            <tbody id="leaderboardBody" class="divide-y divide-white/5"></tbody>
+                        </table>
+                    </div>
                 </div>
             </section>
 
             <section id="tournaments" class="mb-20">
                 <h2 class="font-cod text-2xl mb-8 uppercase border-l-4 border-orange-500 pl-4 italic">Missions Tactiques</h2>
-                <div id="tournamentContainer" class="grid md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+                <div id="tournamentContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
             </section>
         </main>
     </div>
 
-    <!-- VUE ADMIN -->
-    <div id="adminView" class="hidden fixed inset-0 z-[100] bg-black flex">
-        <aside class="w-64 border-r border-zinc-800 p-6 flex flex-col gap-6">
-            <div class="font-cod text-xl text-orange-500 italic uppercase">HQ CONTROL</div>
+    <div id="adminView" class="hidden fixed inset-0 z-[100] bg-black flex admin-layout">
+        <aside class="w-64 border-r border-zinc-800 p-6 flex flex-col gap-6 admin-sidebar">
+            <div class="font-cod text-xl text-orange-500 italic uppercase hidden md:block">HQ CONTROL</div>
             <nav class="flex flex-col gap-1">
                 <button onclick="switchAdminTab('tournaments')" id="tab-tournaments" class="sidebar-link active">Missions</button>
                 <button onclick="switchAdminTab('players')" id="tab-players" class="sidebar-link">Joueurs</button>
-                <button onclick="switchAdminTab('media')" id="tab-media" class="sidebar-link">Médias & Vidéo</button>
+                <button onclick="switchAdminTab('media')" id="tab-media" class="sidebar-link">Médias</button>
             </nav>
-            <div class="mt-auto flex flex-col gap-2">
-                <button onclick="hideAdminView()" class="sidebar-link"><i data-lucide="home"></i> Accueil</button>
-                <button onclick="signOutUser()" class="sidebar-link text-red-500"><i data-lucide="log-out"></i> Déconnexion</button>
+            <div class="mt-auto flex flex-row md:flex-col gap-2">
+                <button onclick="hideAdminView()" class="sidebar-link !w-auto md:!w-full"><i data-lucide="home" class="w-4 h-4"></i> <span class="hidden md:inline">Accueil</span></button>
+                <button onclick="signOutUser()" class="sidebar-link text-red-500 !w-auto md:!w-full"><i data-lucide="log-out" class="w-4 h-4"></i> <span class="hidden md:inline">Quitter</span></button>
             </div>
         </aside>
 
-        <main class="flex-grow p-10 overflow-y-auto bg-zinc-950">
+        <main class="flex-grow p-6 md:p-10 overflow-y-auto bg-zinc-950 admin-main">
             <div id="admin-tournaments-section">
                 <div class="flex justify-between items-center mb-8">
-                    <h2 class="text-3xl font-cod uppercase italic text-orange-500">Logistique Missions</h2>
-                    <button onclick="toggleModal('tourneyModal', true)" class="btn-cod">+ Mission</button>
+                    <h2 class="text-2xl md:text-3xl font-cod uppercase italic text-orange-500">Missions</h2>
+                    <button onclick="toggleModal('tourneyModal', true)" class="btn-cod !py-2 !px-4">+ Mission</button>
                 </div>
-                <div class="card-gaming rounded-xl overflow-x-auto">
-                    <table class="w-full text-left min-w-[1000px]">
+                <div class="card-gaming rounded-xl">
+                    <table class="w-full text-left responsive-table">
                         <thead class="bg-zinc-800/50 text-[10px] uppercase text-gray-500 font-bold">
                             <tr>
                                 <th class="p-4">Mission</th>
                                 <th class="p-4">Date</th>
-                                <th class="p-4 text-center">Places Max</th>
-                                <th class="p-4 text-center">Cash Prize</th>
+                                <th class="p-4 text-center">Places</th>
+                                <th class="p-4 text-center">Cash</th>
                                 <th class="p-4 text-center">Inscrits</th>
                                 <th class="p-4 text-right">Actions</th>
                             </tr>
@@ -301,11 +371,11 @@
 
             <div id="admin-players-section" class="hidden">
                 <div class="flex justify-between items-center mb-8">
-                    <h2 class="text-3xl font-cod uppercase italic text-orange-500">Effectifs</h2>
-                    <button onclick="toggleModal('playerModal', true)" class="btn-cod">+ Joueur</button>
+                    <h2 class="text-2xl md:text-3xl font-cod uppercase italic text-orange-500">Effectifs</h2>
+                    <button onclick="toggleModal('playerModal', true)" class="btn-cod !py-2 !px-4">+ Joueur</button>
                 </div>
-                <div class="card-gaming rounded-xl overflow-x-auto">
-                    <table class="w-full text-left min-w-[1000px]">
+                <div class="card-gaming rounded-xl">
+                    <table class="w-full text-left responsive-table">
                         <thead class="bg-zinc-800/50 text-[10px] uppercase text-gray-500 font-bold">
                             <tr>
                                 <th class="p-4">Soldat</th>
@@ -321,13 +391,13 @@
             </div>
 
             <div id="admin-media-section" class="hidden">
-                <h2 class="text-3xl font-cod uppercase italic text-orange-500 mb-8">Médias & Briefing</h2>
-                <div class="card-gaming p-8 rounded-lg max-w-xl">
+                <h2 class="text-2xl md:text-3xl font-cod uppercase italic text-orange-500 mb-8">Médias & Briefing</h2>
+                <div class="card-gaming p-6 md:p-8 rounded-lg max-w-xl">
                     <div class="mb-6">
                         <label class="block text-[10px] uppercase text-gray-500 mb-2">Lien YouTube de la vidéo à la une</label>
-                        <div class="flex gap-2">
-                            <input type="text" id="youtubeUrlInput" class="input-cod" placeholder="https://www.youtube.com/watch?v=...">
-                            <button onclick="saveFeaturedVideo()" class="btn-cod">Sauvegarder</button>
+                        <div class="flex flex-col gap-2">
+                            <input type="text" id="youtubeUrlInput" class="input-cod" placeholder="Lien YouTube...">
+                            <button onclick="saveFeaturedVideo()" class="btn-cod w-full justify-center">Sauvegarder</button>
                         </div>
                     </div>
                 </div>
@@ -335,9 +405,8 @@
         </main>
     </div>
 
-    <!-- MODALS CRÉATION -->
     <div id="tourneyModal" class="modal-overlay">
-        <div class="bg-zinc-900 p-8 w-full max-w-2xl border border-zinc-800 rounded-lg shadow-2xl">
+        <div class="bg-zinc-900 p-6 md:p-8 w-full max-w-2xl border border-zinc-800 rounded-lg shadow-2xl max-h-[90vh] overflow-y-auto">
             <h2 class="font-cod text-2xl text-orange-500 mb-6 uppercase italic">Initialiser Mission</h2>
             <form id="tournamentForm" class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div class="md:col-span-2"><label class="text-[10px] text-gray-500 uppercase">Nom de la Mission</label><input type="text" id="tTitle" class="input-cod" required></div>
@@ -345,7 +414,7 @@
                 <div><label class="text-[10px] text-gray-500 uppercase">Mode</label><select id="tMode" class="input-cod"><option value="MJ - R&D">MJ - R&D</option><option value="BR - Squad">BR - Squad</option></select></div>
                 <div><label class="text-[10px] text-gray-500 uppercase">Limite</label><input type="number" id="tLimit" class="input-cod" value="2" required></div>
                 <div><label class="text-[10px] text-gray-500 uppercase">Cash Prize</label><input type="text" id="tPrize" class="input-cod" required></div>
-                <div class="md:col-span-2 flex gap-3 mt-4"><button type="submit" class="btn-cod flex-grow justify-center">Publier</button><button type="button" onclick="toggleModal('tourneyModal', false)" class="px-6 text-gray-500 uppercase text-xs">Annuler</button></div>
+                <div class="md:col-span-2 flex gap-3 mt-4"><button type="submit" class="btn-cod flex-grow justify-center">Publier</button><button type="button" onclick="toggleModal('tourneyModal', false)" class="px-4 text-gray-500 uppercase text-xs">Annuler</button></div>
             </form>
         </div>
     </div>
@@ -396,6 +465,11 @@
             }, 4000);
         }
 
+        window.scrollToSection = (id) => {
+            const el = document.getElementById(id);
+            if(el) el.scrollIntoView({ behavior: 'smooth' });
+        };
+
         window.toggleModal = (id, show) => {
             const el = document.getElementById(id);
             if(el) el.style.display = show ? 'flex' : 'none';
@@ -426,66 +500,41 @@
             if(videoId) {
                 await setDoc(doc(db, 'settings', 'featured_video'), { videoId: videoId });
                 showToast("VIDÉO MISE À JOUR", 'success');
+            } else {
+                showToast("LIEN YOUTUBE INVALIDE", 'error');
             }
         };
 
-        // --- GESTION DES PARTICIPANTS (MÉTHODE PAR INDEX - ANTI-ERREUR) ---
-        
         window.removeParticipant = async (tourneyId, playerIndex) => {
             if (!isAdmin) return;
-            
             try {
                 const tourneyRef = doc(db, 'tournaments', tourneyId);
                 const tourneySnap = await getDoc(tourneyRef);
-                
-                if (!tourneySnap.exists()) {
-                    showToast("TOURNOI INTROUVABLE", "error");
-                    return;
-                }
-
+                if (!tourneySnap.exists()) return;
                 const currentParticipants = [...(tourneySnap.data().participants || [])];
                 const playerToRemove = currentParticipants[playerIndex];
-
                 if (!confirm(`Confirmer le retrait de "${playerToRemove}" ?`)) return;
-
-                // On retire l'élément à l'index précis
                 currentParticipants.splice(playerIndex, 1);
-
-                // On renvoie le tableau entier mis à jour
                 await updateDoc(tourneyRef, { participants: currentParticipants });
-                
-                showToast(`SOLDAT RETIRÉ AVEC SUCCÈS`, 'success');
-                
-                // Rafraîchir la modal
+                showToast(`SOLDAT RETIRÉ`, 'success');
                 viewParticipants(tourneyId);
             } catch (e) {
-                console.error("Erreur fatale suppression:", e);
-                showToast("ERREUR LORS DE LA SUPPRESSION", "error");
+                showToast("ERREUR SUPPRESSION", "error");
             }
         };
 
         window.viewParticipants = async (tourneyId) => {
             const snap = await getDoc(doc(db, 'tournaments', tourneyId));
             if (!snap.exists()) return;
-
             const participants = snap.data().participants || [];
             const listEl = document.getElementById('participantsList');
-            
-            // On utilise l'INDEX i pour la suppression, c'est infaillible par rapport au nom
             listEl.innerHTML = participants.length ? participants.map((p, i) => {
                 return `
                 <div class="p-3 bg-white/5 border border-white/10 rounded flex justify-between items-center hover:bg-zinc-800 transition-all">
-                    <div>
-                        <span class="text-xs uppercase font-bold text-orange-500">${p}</span>
-                        <div class="text-[8px] text-zinc-500 italic">Position: ${i+1}</div>
-                    </div>
-                    <button onclick="removeParticipant('${tourneyId}', ${i})" class="text-red-500 hover:text-red-400 p-2 flex items-center gap-2 group">
-                        <span class="text-[9px] font-bold uppercase hidden group-hover:inline">Retirer</span>
-                        <i data-lucide="user-x" class="w-4 h-4"></i>
-                    </button>
+                    <div><span class="text-xs uppercase font-bold text-orange-500">${p}</span></div>
+                    <button onclick="removeParticipant('${tourneyId}', ${i})" class="text-red-500 p-2"><i data-lucide="user-x" class="w-4 h-4"></i></button>
                 </div>`;
             }).join('') : `<p class="text-zinc-500 text-center italic py-4">Aucun engagé.</p>`;
-            
             toggleModal('participantsModal', true);
             lucide.createIcons();
         };
@@ -497,23 +546,36 @@
             const data = snap.data();
             const participants = data.participants || [];
             const max = data.maxPlayers || data.limit || 0;
-
             if (max > 0 && participants.length >= max) { showToast("MISSION COMPLÈTE", "error"); return; }
-            
             const userSnap = await getDoc(doc(db, 'players', currentUser.uid));
-            let playerName = "";
-
-            if (userSnap.exists()) {
-                playerName = userSnap.data().name || currentUser.email.split('@')[0];
-            } else {
-                playerName = currentUser.email.split('@')[0];
-            }
-
-            const alreadyExists = participants.some(p => p.toLowerCase() === playerName.toLowerCase());
-            if (alreadyExists) { showToast("DÉJÀ INSCRIT", "error"); return; }
-
+            let playerName = userSnap.exists() ? userSnap.data().name : currentUser.email.split('@')[0];
+            if (participants.some(p => p.toLowerCase() === playerName.toLowerCase())) { showToast("DÉJÀ INSCRIT", "error"); return; }
             await updateDoc(tourneyRef, { participants: arrayUnion(playerName) });
             showToast("INSCRIPTION VALIDÉE !", "success");
+        };
+
+        // --- NOUVEAU : LOGIQUE DE PARI ---
+        window.openBetModal = async (tourneyId) => {
+            if (!currentUser) { 
+                toggleModal('authModal', true); 
+                return; 
+            }
+            
+            const tourneyRef = doc(db, 'tournaments', tourneyId);
+            const snap = await getDoc(tourneyRef);
+            if (!snap.exists()) return;
+            
+            const participants = snap.data().participants || [];
+            if (participants.length === 0) {
+                showToast("AUCUN ENGAGÉ SUR LEQUEL PARIER", "error");
+                return;
+            }
+
+            document.getElementById('betTourneyId').value = tourneyId;
+            const selectEl = document.getElementById('betPredictedWinner');
+            selectEl.innerHTML = participants.map(p => `<option value="${p}">${p}</option>`).join('');
+            
+            toggleModal('betModal', true);
         };
 
         onAuthStateChanged(auth, async (user) => {
@@ -523,11 +585,9 @@
                 isAdmin = adminDoc.exists();
                 if (isAdmin) document.getElementById('adminQuickLink').classList.remove('hidden');
                 document.getElementById('userProfile').innerHTML = `
-                    <div class="flex items-center gap-3">
-                        <span class="text-[10px] text-zinc-500 font-bold uppercase">${user.email.split('@')[0]}</span>
-                        <button onclick="signOutUser()" class="p-2 text-zinc-500 hover:text-red-500">
-                            <i data-lucide="power" class="w-4 h-4"></i>
-                        </button>
+                    <div class="flex items-center gap-2 md:gap-3">
+                        <span class="text-[9px] md:text-[10px] text-zinc-500 font-bold uppercase truncate max-w-[80px]">${user.email.split('@')[0]}</span>
+                        <button onclick="signOutUser()" class="p-1 text-zinc-500 hover:text-red-500"><i data-lucide="power" class="w-4 h-4"></i></button>
                     </div>`;
             }
             initDataSync();
@@ -544,47 +604,49 @@
 
             onSnapshot(collection(db, 'tournaments'), (snap) => {
                 const list = snap.docs.map(d => ({id: d.id, ...d.data()}));
-                
-                // Dashboard Client
                 document.getElementById('tournamentContainer').innerHTML = list.map(t => {
                     const participants = t.participants || [];
                     const max = t.maxPlayers || t.limit || 0;
                     const isFull = max > 0 && participants.length >= max;
                     return `
-                    <div class="card-gaming p-6 rounded-lg border-b-2 border-orange-500 relative">
-                        <div class="absolute top-4 right-4 status-badge ${isFull ? 'bg-red-500/20 text-red-500' : 'bg-green-500/10 text-green-500'}">${isFull ? 'PLEIN' : 'OUVERT'}</div>
-                        <h3 class="font-cod text-xl my-1 uppercase italic">${t.title || 'Mission'}</h3>
-                        <p class="text-gray-500 text-[10px] uppercase font-bold mb-4">${t.date || '---'}</p>
-                        <div class="space-y-2 mb-6 text-[10px] uppercase">
-                            <div class="flex justify-between"><span class="text-zinc-500">Récompense</span><span class="text-orange-500 font-bold">${t.prize || '0'}</span></div>
-                            <div class="flex justify-between"><span class="text-zinc-500">Effectifs</span><span class="text-white font-bold">${participants.length} / ${max}</span></div>
+                    <div class="card-gaming p-6 rounded-lg border-b-2 border-orange-500 relative flex flex-col justify-between">
+                        <div>
+                            <div class="absolute top-4 right-4 status-badge ${isFull ? 'bg-red-500/20 text-red-500' : 'bg-green-500/10 text-green-500'}">${isFull ? 'PLEIN' : 'OUVERT'}</div>
+                            <h3 class="font-cod text-xl my-1 uppercase italic">${t.title || 'Mission'}</h3>
+                            <p class="text-gray-500 text-[10px] uppercase font-bold mb-4">${t.date || '---'}</p>
+                            <div class="space-y-2 mb-6 text-[10px] uppercase">
+                                <div class="flex justify-between"><span class="text-zinc-500">Récompense</span><span class="text-orange-500 font-bold">${t.prize || '0'}</span></div>
+                                <div class="flex justify-between"><span class="text-zinc-500">Effectifs</span><span class="text-white font-bold">${participants.length} / ${max}</span></div>
+                            </div>
                         </div>
-                        <button onclick="registerToMission('${t.id}')" ${isFull ? 'disabled' : ''} class="btn-cod w-full justify-center !text-[10px]">
-                            ${isFull ? 'EFFECTIF COMPLET' : "S'ENRÔLER"}
-                        </button>
+                        <div class="flex gap-2 mt-auto">
+                            <button onclick="registerToMission('${t.id}')" ${isFull ? 'disabled' : ''} class="btn-cod flex-1 justify-center !text-[10px] !px-1">
+                                ${isFull ? 'COMPLET' : "S'ENRÔLER"}
+                            </button>
+                            <button onclick="openBetModal('${t.id}')" class="btn-outline-cod flex-1 justify-center !text-[10px] !px-1" ${participants.length === 0 ? 'disabled' : ''}>
+                                PARIER (1€)
+                            </button>
+                        </div>
                     </div>`;
                 }).join('');
                 
-                // Dashboard Admin
                 if (isAdmin) {
                     document.getElementById('adminTourneyList').innerHTML = list.map(t => {
                         const participants = t.participants || [];
                         const max = t.maxPlayers || t.limit || 0;
                         return `
                         <tr class="border-b border-white/5 text-[11px]">
-                            <td class="p-4 font-bold text-orange-500 uppercase">${t.title}</td>
-                            <td class="p-4 text-zinc-500">${t.date}</td>
-                            <td class="p-4 text-center font-bold">${max}</td>
-                            <td class="p-4 text-center text-orange-500">${t.prize}</td>
-                            <td class="p-4 text-center">
+                            <td class="p-4 font-bold text-orange-500 uppercase" data-label="Mission">${t.title}</td>
+                            <td class="p-4 text-zinc-500" data-label="Date">${t.date}</td>
+                            <td class="p-4 text-center font-bold" data-label="Places">${max}</td>
+                            <td class="p-4 text-center text-orange-500" data-label="Cash">${t.prize}</td>
+                            <td class="p-4 text-center" data-label="Inscrits">
                                 <button onclick="viewParticipants('${t.id}')" class="btn-outline-cod !py-1 !px-2 !text-[9px]">
                                     ${participants.length} / ${max} GÉRER
                                 </button>
                             </td>
-                            <td class="p-4 text-right">
-                                <button onclick="if(confirm('Supprimer cette mission ?')) deleteDoc(doc(db, 'tournaments', '${t.id}'))" class="text-red-500 opacity-50 hover:opacity-100">
-                                    <i data-lucide="trash"></i>
-                                </button>
+                            <td class="p-4 text-right" data-label="Suppr.">
+                                <button onclick="if(confirm('Supprimer ?')) deleteDoc(doc(db, 'tournaments', '${t.id}'))" class="text-red-500"><i data-lucide="trash" class="w-4 h-4"></i></button>
                             </td>
                         </tr>`;
                     }).join('');
@@ -606,14 +668,12 @@
                 if(isAdmin) {
                     document.getElementById('adminPlayersList').innerHTML = list.map(p => `
                         <tr class="border-b border-white/5">
-                            <td class="p-4 font-bold text-orange-500 uppercase text-xs">${p.name || 'Soldat'}</td>
-                            <td class="p-4 text-center text-xs">${p.wins || 0}</td>
-                            <td class="p-4 text-center text-xs">${p.kills || 0}</td>
-                            <td class="p-4 text-center font-bold text-orange-500">${p.points || 0}</td>
-                            <td class="p-4 text-right">
-                                <button onclick="if(confirm('Supprimer ce soldat ?')) deleteDoc(doc(db, 'players', '${p.id}'))" class="text-red-500 opacity-50">
-                                    <i data-lucide="user-minus"></i>
-                                </button>
+                            <td class="p-4 font-bold text-orange-500 uppercase text-xs" data-label="Soldat">${p.name || 'Soldat'}</td>
+                            <td class="p-4 text-center text-xs" data-label="Wins">${p.wins || 0}</td>
+                            <td class="p-4 text-center text-xs" data-label="Kills">${p.kills || 0}</td>
+                            <td class="p-4 text-center font-bold text-orange-500" data-label="Points">${p.points || 0}</td>
+                            <td class="p-4 text-right" data-label="Suppr.">
+                                <button onclick="if(confirm('Supprimer ?')) deleteDoc(doc(db, 'players', '${p.id}'))" class="text-red-500"><i data-lucide="user-minus" class="w-4 h-4"></i></button>
                             </td>
                         </tr>`).join('');
                 }
@@ -627,8 +687,7 @@
                 await signInWithEmailAndPassword(auth, document.getElementById('authEmail').value, document.getElementById('authPass').value); 
                 toggleModal('authModal', false); 
                 showToast("DÉPLOIEMENT RÉUSSI", "success");
-            }
-            catch (err) { showToast("ACCÈS REFUSÉ", "error"); }
+            } catch (err) { showToast("ACCÈS REFUSÉ", "error"); }
         });
 
         document.getElementById('tournamentForm').addEventListener('submit', async (e) => {
@@ -638,16 +697,14 @@
                     title: document.getElementById('tTitle').value,
                     date: document.getElementById('tDate').value,
                     mode: document.getElementById('tMode').value,
-                    maxPlayers: parseInt(document.getElementById('tLimit').value),
+                    limit: parseInt(document.getElementById('tLimit').value),
                     prize: document.getElementById('tPrize').value,
-                    status: 'open',
                     participants: [],
                     createdAt: serverTimestamp()
                 });
-                showToast("MISSION CRÉÉE", "success");
                 toggleModal('tourneyModal', false);
-                e.target.reset();
-            } catch(e) { showToast("ERREUR DE CRÉATION", "error"); }
+                showToast("MISSION PUBLIÉE", "success");
+            } catch (err) { showToast("ERREUR PUBLICATION", "error"); }
         });
 
         document.getElementById('playerForm').addEventListener('submit', async (e) => {
@@ -655,18 +712,42 @@
             try {
                 await addDoc(collection(db, 'players'), {
                     name: document.getElementById('playerName').value,
-                    wins: 0, kills: 0, points: 0, createdAt: serverTimestamp()
+                    wins: 0, kills: 0, points: 0
                 });
-                showToast("SOLDAT ENRÔLÉ", "success");
                 toggleModal('playerModal', false);
-                e.target.reset();
-            } catch(e) { showToast("ERREUR", "error"); }
+                showToast("SOLDAT ENRÔLÉ", "success");
+            } catch (err) { showToast("ERREUR ENRÔLEMENT", "error"); }
         });
 
-        window.scrollToSection = (id) => {
-            const el = document.getElementById(id);
-            if(el) el.scrollIntoView({ behavior: 'smooth' });
-        };
+        // --- NOUVEAU : ENREGISTRER LE PARI DANS FIREBASE ---
+        document.getElementById('betForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            if (!currentUser) return;
+            
+            const tourneyId = document.getElementById('betTourneyId').value;
+            const predictedWinner = document.getElementById('betPredictedWinner').value;
+            
+            try {
+                const tourneyRef = doc(db, 'tournaments', tourneyId);
+                
+                const betData = {
+                    betterEmail: currentUser.email,
+                    predictedWinner: predictedWinner,
+                    amount: 1, 
+                    timestamp: new Date().toISOString()
+                };
+                
+                await updateDoc(tourneyRef, {
+                    bets: arrayUnion(betData)
+                });
+                
+                toggleModal('betModal', false);
+                showToast("PARI DE 1€ ENREGISTRÉ !", "success");
+            } catch(err) {
+                console.error(err);
+                showToast("ERREUR LORS DU PARI", "error");
+            }
+        });
     </script>
 </body>
 </html>
